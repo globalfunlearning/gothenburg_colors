@@ -1,0 +1,13 @@
+## Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# RStudio
+.Rproj.user/
+*.Rproj
+
+# Temporärt
+*~
+.#*
