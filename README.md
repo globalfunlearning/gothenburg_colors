@@ -175,7 +175,6 @@ Använd för bakgrunder, ljusa värden, highlights:
 | `gbg_palette()` | Hämta färgpalett (sequential/diverging/categorical) |
 | `choose_text_color()` | Välj svart eller vit text för optimal kontrast |
 | `check_color_contrast()` | ✨ **NY** Kontrollera WCAG-kontrast |
-| `normalize_for_map()` | ✨ **NY** Normalisera data för kartor |
 | `show_palette()` | Visualisera palett (kräver ggplot2) |
 | `gbg_palette_gradient()` | Skapa custom gradient |
 
@@ -226,10 +225,6 @@ Använd för bakgrunder, ljusa värden, highlights:
 - Stadsdelar
 - Partier
 - Kategorier (max 7 rekommenderas)
-
-### Normalisering av kartdata
-
-⚠️ **Viktigt:** Choropleth-kartor kräver ofta normaliserad data!
 
 ### Kontrollera tillgänglighet
 
@@ -350,6 +345,31 @@ MIT License - Se [LICENSE](LICENSE) för detaljer.
 ---
 
 ## ⭐ Exempel
+
+### Choropleth-karta
+
+```r
+library(ggplot2)
+library(sf)
+library(dplyr)
+
+# Ladda färgsystem
+source("colors_gothenburg.R")
+source("ggplot_scales_gothenburg.R")
+
+# Skapa karta med rådata eller normaliserad data
+ggplot(kommuner, aes(fill = befolkning_per_km2)) +
+  geom_sf(color = "white", linewidth = 0.3) +
+  scale_fill_gbg_sequential(
+    palette = "blue",
+    name = "Personer per km²"
+  ) +
+  labs(
+    title = "Befolkningstäthet i Göteborg",
+    caption = "Källa: SCB"
+  ) +
+  theme_minimal()
+```
 
 ### Kontrastkontroll för text
 

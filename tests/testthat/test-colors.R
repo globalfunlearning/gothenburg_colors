@@ -202,8 +202,9 @@ test_that("gbg_palette_gradient() skapar gradient", {
 test_that("gbg_palette_gradient() startar och slutar med givna färger", {
   colors <- c("#bfe4f2", "#0076bc")
   gradient <- gbg_palette_gradient(colors, n = 5)
-  expect_equal(gradient[1], colors[1])
-  expect_equal(gradient[5], colors[2])
+  # Jämför case-insensitive (colorRampPalette kan returnera versaler)
+  expect_equal(tolower(gradient[1]), tolower(colors[1]))
+  expect_equal(tolower(gradient[5]), tolower(colors[2]))
 })
 
 test_that("gbg_palette_gradient() ger error för för få färger", {
@@ -237,7 +238,6 @@ cat("  ✓ gbg_colors()\n")
 cat("  ✓ gbg_palette()\n")
 cat("  ✓ choose_text_color()\n")
 cat("  ✓ check_color_contrast()\n")
-cat("  ✓ normalize_for_map()\n")
 cat("  ✓ show_palette()\n")
 cat("  ✓ gbg_palette_gradient()\n")
 cat("\n")
