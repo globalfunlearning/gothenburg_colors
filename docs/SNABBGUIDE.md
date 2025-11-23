@@ -2,6 +2,7 @@
 
 Snabb referens för Göteborgs Stads färgsystem i R.
 
+
 ------------------------------------------------------------------------
 
 ## 📦 Installation
@@ -122,6 +123,14 @@ gbg_palette_gradient(
   c(gbg_colors("light_cyan"), gbg_colors("blue")),
   n = 10
 )
+```
+
+## 🆕 Nya funktioner (v1.1)
+
+### Kontrollera färgkontrast
+```r
+check_color_contrast(gbg_colors("blue"), gbg_colors("white"))
+# Visar WCAG AA/AAA-status
 ```
 
 ------------------------------------------------------------------------

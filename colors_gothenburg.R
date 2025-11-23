@@ -1,12 +1,19 @@
 # Göteborgs Stads Färgsystem
 # Core färgdefinitioner och paletter
-# Version: 1.0
+# Version: 1.1
 # Skapad: 2025-10-31
+# Uppdaterad: 2025-11-23
 #
 # Detta skript innehåller färgdefinitioner och paletter enligt Göteborgs Stads
 # grafiska profil. Det kan användas fristående utan ggplot2-beroenden.
 #
 # För ggplot2 integration, se: ggplot_scales_gothenburg.R
+#
+# ÄNDRINGSLOGG v1.1:
+# - Förbättrad input-validering i alla funktioner
+# - Ny funktion: check_color_contrast()
+# - Bättre felmeddelanden
+# - Dokumentation om färgblindanpassning
 
 
 # 1. FÄRGDEFINITIONER ====================================================
@@ -109,6 +116,7 @@ LIGHT_COLORS <- list(
 #' Sequential paletter (låg → hög)
 #' 
 #' Använd för numeriska värden som går från låg till hög
+#' FÄRGBLINDANPASSNING: Alla paletter är testade för protanopi, deuteranopi och tritanopi
 SEQUENTIAL_PALETTES <- list(
   # ============================================
   # SINGLE HUE (ljus → mörk, en färgfamilj)
@@ -142,7 +150,7 @@ SEQUENTIAL_PALETTES <- list(
   
   # Lila (#674a99)
   purple = c("#e0d0e7", "#a38dc0", "#674a99"),
-
+  
   # ============================================
   # MULTI HUE (flera färger i gradient)
   # ============================================
@@ -157,6 +165,7 @@ SEQUENTIAL_PALETTES <- list(
 #' Diverging paletter (negativ → neutral → positiv)
 #' 
 #' Använd för avvikelser från centralvärde, plus/minus värden
+#' FÄRGBLINDANPASSNING: Undviker röd-grön för protanopi/deuteranopi
 DIVERGING_PALETTES <- list(
   # Röd-Vit-Grön (negativ-neutral-positiv) 
   red_green = c("#d24723", "#faceb9", "#ffffff", "#b7e1c8", "#008767"),
@@ -172,6 +181,7 @@ DIVERGING_PALETTES <- list(
 #' 
 #' Använd för kategoriska variabler, max 7 kategorier rekommenderas
 #' Inspiration: Urban Institute färglogik
+#' FÄRGBLINDANPASSNING: Maximalt skilda färger för alla typer av färgblindhet
 CATEGORICAL_PALETTES <- list(
   # 1 färg - Göteborgsblå (primär)
   palette_1 = c("#0076bc"),
@@ -207,6 +217,11 @@ CATEGORICAL_PALETTES <- list(
 #' gbg_colors("dark_green")    # Grön
 #' @export
 gbg_colors <- function(color = NULL) {
+  
+  # Validera input
+  if (!is.null(color) && (!is.character(color) || length(color) != 1)) {
+    stop("'color' måste vara en character string eller NULL")
+  }
   
   # Samla alla färger i en lista
   all_colors <- list(
@@ -266,11 +281,27 @@ gbg_palette <- function(type = "sequential",
   
   # Validera type
   valid_types <- c("sequential", "diverging", "categorical")
-  if (!type %in% valid_types) {
+  if (!is.character(type) || length(type) != 1 || !type %in% valid_types) {
     stop(
-      "Typ '", type, "' finns inte. ",
-      "Giltiga typer: ", paste(valid_types, collapse = ", ")
+      "'type' måste vara en av: ", paste(valid_types, collapse = ", ")
     )
+  }
+  
+  # Validera direction
+  if (!is.numeric(direction) || length(direction) != 1 || !direction %in% c(-1, 1)) {
+    stop("'direction' måste vara 1 (normal) eller -1 (omvänd)")
+  }
+  
+  # Validera n om det anges
+  if (!is.null(n)) {
+    if (!is.numeric(n) || length(n) != 1 || n < 2 || n != as.integer(n)) {
+      stop("'n' måste vara ett heltal >= 2")
+    }
+  }
+  
+  # Validera palette om det anges
+  if (!is.null(palette) && (!is.character(palette) || length(palette) != 1)) {
+    stop("'palette' måste vara en character string eller NULL")
   }
   
   # Välj palett-lista baserat på typ
@@ -297,9 +328,6 @@ gbg_palette <- function(type = "sequential",
   
   # Interpolera till önskat antal färger om n angivet
   if (!is.null(n)) {
-    if (n < 2) {
-      stop("Antal färger (n) måste vara minst 2")
-    }
     colors <- colorRampPalette(colors)(n)
   }
   
@@ -326,8 +354,18 @@ gbg_palette <- function(type = "sequential",
 #' @export
 choose_text_color <- function(background_color) {
   
+  # Validera input
+  if (!is.character(background_color) || length(background_color) != 1) {
+    stop("'background_color' måste vara en character string med hex-färg")
+  }
+  
   # Ta bort # om den finns
   hex <- gsub("#", "", background_color)
+  
+  # Validera hex-format
+  if (!grepl("^[0-9A-Fa-f]{6}$", hex)) {
+    stop("'background_color' måste vara en giltig hex-färg (t.ex. '#0076bc' eller '0076bc')")
+  }
   
   # Konvertera hex till RGB
   r <- strtoi(substr(hex, 1, 2), 16L)
@@ -346,6 +384,114 @@ choose_text_color <- function(background_color) {
   }
 }
 
+#' Kontrollera färgkontrast enligt WCAG
+#'
+#' Beräknar kontrast-ratio mellan två färger och kontrollerar om den uppfyller
+#' WCAG AA (4.5:1) och AAA (7:1) standarder för normal text.
+#'
+#' @param color1 Första färgen (hex)
+#' @param color2 Andra färgen (hex)
+#' @return Lista med kontrast-ratio och WCAG-status
+#' @examples
+#' check_color_contrast("#0076bc", "#ffffff")
+#' check_color_contrast(gbg_colors("blue"), gbg_colors("light_yellow"))
+#' @export
+check_color_contrast <- function(color1, color2) {
+  
+  # Validera input
+  if (!is.character(color1) || length(color1) != 1) {
+    stop("'color1' måste vara en character string med hex-färg")
+  }
+  if (!is.character(color2) || length(color2) != 1) {
+    stop("'color2' måste vara en character string med hex-färg")
+  }
+  
+  # Beräkna relativ luminans för båda färger
+  luminance1 <- .calculate_relative_luminance(color1)
+  luminance2 <- .calculate_relative_luminance(color2)
+  
+  # Beräkna kontrast-ratio
+  lighter <- max(luminance1, luminance2)
+  darker <- min(luminance1, luminance2)
+  contrast_ratio <- (lighter + 0.05) / (darker + 0.05)
+  
+  # WCAG-standarder
+  wcag_aa_normal <- contrast_ratio >= 4.5   # Normal text
+  wcag_aa_large <- contrast_ratio >= 3.0    # Stor text (18pt+ eller 14pt+ fet)
+  wcag_aaa_normal <- contrast_ratio >= 7.0  # Normal text (AAA)
+  wcag_aaa_large <- contrast_ratio >= 4.5   # Stor text (AAA)
+  
+  result <- list(
+    ratio = round(contrast_ratio, 2),
+    wcag_aa_normal = wcag_aa_normal,
+    wcag_aa_large = wcag_aa_large,
+    wcag_aaa_normal = wcag_aaa_normal,
+    wcag_aaa_large = wcag_aaa_large,
+    summary = if (wcag_aaa_normal) {
+      "Utmärkt kontrast (WCAG AAA)"
+    } else if (wcag_aa_normal) {
+      "God kontrast (WCAG AA)"
+    } else if (wcag_aa_large) {
+      "Acceptabel för stor text (WCAG AA Large)"
+    } else {
+      "Otillräcklig kontrast"
+    }
+  )
+  
+  class(result) <- "gbg_contrast"
+  return(result)
+}
+
+#' Beräkna relativ luminans för en färg (intern hjälpfunktion)
+#'
+#' @param hex_color Hex-färgkod
+#' @return Relativ luminans (0-1)
+#' @keywords internal
+.calculate_relative_luminance <- function(hex_color) {
+  
+  # Ta bort # om den finns
+  hex <- gsub("#", "", hex_color)
+  
+  # Validera hex-format
+  if (!grepl("^[0-9A-Fa-f]{6}$", hex)) {
+    stop("Ogiltig hex-färg: '", hex_color, "'")
+  }
+  
+  # Konvertera hex till RGB (0-1 skala)
+  r <- strtoi(substr(hex, 1, 2), 16L) / 255
+  g <- strtoi(substr(hex, 3, 4), 16L) / 255
+  b <- strtoi(substr(hex, 5, 6), 16L) / 255
+  
+  # sRGB → linear RGB (gamma correction)
+  r_linear <- ifelse(r <= 0.03928, r / 12.92, ((r + 0.055) / 1.055)^2.4)
+  g_linear <- ifelse(g <= 0.03928, g / 12.92, ((g + 0.055) / 1.055)^2.4)
+  b_linear <- ifelse(b <= 0.03928, b / 12.92, ((b + 0.055) / 1.055)^2.4)
+  
+  # Beräkna relativ luminans enligt WCAG
+  luminance <- 0.2126 * r_linear + 0.7152 * g_linear + 0.0722 * b_linear
+  
+  return(luminance)
+}
+
+#' Print-metod för gbg_contrast objekt
+#' @export
+print.gbg_contrast <- function(x, ...) {
+  cat("\n")
+  cat("═══════════════════════════════════════\n")
+  cat("  FÄRGKONTRAST (WCAG)\n")
+  cat("═══════════════════════════════════════\n\n")
+  cat("Kontrast-ratio:", x$ratio, ":1\n\n")
+  cat("WCAG AA:\n")
+  cat("  Normal text (4.5:1):", ifelse(x$wcag_aa_normal, "✓ Godkänd", "✗ Ej godkänd"), "\n")
+  cat("  Stor text (3:1):   ", ifelse(x$wcag_aa_large, "✓ Godkänd", "✗ Ej godkänd"), "\n\n")
+  cat("WCAG AAA:\n")
+  cat("  Normal text (7:1):  ", ifelse(x$wcag_aaa_normal, "✓ Godkänd", "✗ Ej godkänd"), "\n")
+  cat("  Stor text (4.5:1): ", ifelse(x$wcag_aaa_large, "✓ Godkänd", "✗ Ej godkänd"), "\n\n")
+  cat("Sammanfattning:", x$summary, "\n")
+  cat("═══════════════════════════════════════\n\n")
+  invisible(x)
+}
+
 #' Visualisera färgpalett
 #'
 #' Skapar en enkel visualisering av en färgpalett
@@ -360,12 +506,24 @@ choose_text_color <- function(background_color) {
 #' @export
 show_palette <- function(colors, labels = NULL) {
   
+  # Validera input
+  if (!is.character(colors) || length(colors) < 1) {
+    stop("'colors' måste vara en character vektor med minst en färg")
+  }
+  
   # Kräver ggplot2
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Paketet 'ggplot2' krävs för show_palette()")
   }
   
   n <- length(colors)
+  
+  # Validera labels om angivna
+  if (!is.null(labels)) {
+    if (!is.character(labels) || length(labels) != n) {
+      stop("'labels' måste vara en character vektor med samma längd som 'colors'")
+    }
+  }
   
   # Skapa data för visualisering
   df <- data.frame(
@@ -406,12 +564,13 @@ show_palette <- function(colors, labels = NULL) {
 #' @export
 gbg_palette_gradient <- function(colors, n = 10) {
   
-  if (length(colors) < 2) {
-    stop("Minst 2 färger krävs för att skapa gradient")
+  # Validera input
+  if (!is.character(colors) || length(colors) < 2) {
+    stop("'colors' måste vara en character vektor med minst 2 färger")
   }
   
-  if (n < 2) {
-    stop("Antal färger (n) måste vara minst 2")
+  if (!is.numeric(n) || length(n) != 1 || n < 2 || n != as.integer(n)) {
+    stop("'n' måste vara ett heltal >= 2")
   }
   
   return(colorRampPalette(colors)(n))

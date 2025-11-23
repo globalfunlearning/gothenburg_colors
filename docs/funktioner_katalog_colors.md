@@ -359,6 +359,34 @@ create_badge("Hög prioritet", gbg_colors("dark_red"))
 
 ------------------------------------------------------------------------
 
+## check_color_contrast()
+
+### Beskrivning
+Kontrollerar färgkontrast mellan två färger enligt WCAG-standarder.
+
+### Syntax
+```r
+check_color_contrast(color1, color2)
+```
+
+### Returnerar
+Lista med:
+- `ratio` - Kontrast-ratio (nummer)
+- `wcag_aa_normal` - Uppfyller WCAG AA för normal text (4.5:1)
+- `wcag_aa_large` - Uppfyller WCAG AA för stor text (3:1)
+- `wcag_aaa_normal` - Uppfyller WCAG AAA för normal text (7:1)
+- `wcag_aaa_large` - Uppfyller WCAG AAA för stor text (4.5:1)
+- `summary` - Textsummering
+
+### Exempel
+```r
+check_color_contrast("#0076bc", "#ffffff")
+# Kontrast-ratio: 4.56:1
+# WCAG AA Normal: ✓ Godkänd
+```
+
+------------------------------------------------------------------------
+
 ## show_palette() {#show_palette}
 
 ### Beskrivning

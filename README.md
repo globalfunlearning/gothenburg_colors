@@ -2,6 +2,11 @@
 
 Färgsystem och designfunktioner enligt Göteborgs Stads grafiska profil.
 
+**Version:** 1.1  
+**Senast uppdaterad:** 2025-11-23
+
+---
+
 ## 📦 Installation
 
 ```r
@@ -11,6 +16,8 @@ source("colors_gothenburg.R")
 # Ladda ggplot2 integration (valfritt)
 source("ggplot_scales_gothenburg.R")
 ```
+
+---
 
 ## 🎯 Snabbstart
 
@@ -61,21 +68,57 @@ ggplot(data, aes(fill = district)) +
   scale_fill_gbg_categorical("palette_4")
 ```
 
+---
+
+## ✨ Vad är nytt i v1.1?
+
+### Nya funktioner
+
+**`check_color_contrast()`** - Kontrollera färgkontrast enligt WCAG
+```r
+check_color_contrast(gbg_colors("blue"), gbg_colors("white"))
+# Returnerar kontrast-ratio och WCAG AA/AAA-status
+```
+
+### Förbättringar
+
+- ✅ **Starkare input-validering** i alla funktioner
+- ✅ **Bättre felmeddelanden** som hjälper till felsökning
+- ✅ **Automatiserade tester** med testthat (80+ tester)
+- ✅ **Färgblindanpassning** dokumenterad
+
+---
+
 ## 📁 Projektstruktur
 
 ```
 gothenburg-colors/
-├── colors_gothenburg.R              # CORE: Färger + paletter (418 rader)
-├── ggplot_scales_gothenburg.R       # EXTENSION: ggplot2 scales (325 rader)
+├── colors_gothenburg.R              # CORE: Färger + paletter
+├── ggplot_scales_gothenburg.R       # EXTENSION: ggplot2 scales
 ├── README.md                        # Detta dokument
+├── CHANGELOG.md                     # Versionshistorik
+├── LICENSE                          # MIT License
+├── .gitignore                       # Git-ignorerade filer
+│
 ├── docs/
-│   ├── funktioner_katalog_colors.md
-│   └── funktioner_katalog_ggplot.md
-└── examples/
-    ├── exempel_colors.R
-    ├── exempel_kartor.R
-    └── exempel_diagram.R
+│   ├── funktioner_katalog_colors.md      # Detaljerad API-dokumentation
+│   ├── funktioner_katalog_ggplot.md      # ggplot2 scales-dokumentation
+│   ├── fargblindanpassning.md            # Tillgänglighetsdokumentation
+│   └── SNABBGUIDE.md                     # Snabbreferens
+│
+├── examples/
+│   ├── exempel_colors.R              # Base R exempel
+│   ├── exempel_kartor.R              # ggplot2 kartor med sf
+│   └── exempel_diagram.R             # ggplot2 diagram
+│
+└── tests/
+    ├── testthat.R                    # Testkonfiguration
+    └── testthat/
+        ├── test-colors.R             # Tester för colors_gothenburg.R
+        └── test-scales.R             # Tester för ggplot_scales_gothenburg.R
 ```
+
+---
 
 ## 🎨 Färgpaletter
 
@@ -117,86 +160,37 @@ Använd för bakgrunder, ljusa värden, highlights:
 - `purple_green` (7 steg)
 
 **Categorical (7 st):**
-- `palette_1` (1 färg - Göteborgsblå)
-- `palette_2` (2 färger - Blå + Svart)
-- `palette_3` (3 färger)
-- `palette_4` (4 färger) ⭐ REKOMMENDERAD
-- `palette_5` (5 färger)
-- `palette_6` (6 färger)
-- `palette_7` (7 färger - MAX)
+- `palette_1` till `palette_7` (1-7 färger)
+- ⭐ `palette_4` rekommenderas som standard
 
-## 🔧 Funktioner
+---
+
+## 🔧 Kärnfunktioner
 
 ### colors_gothenburg.R (CORE)
 
-#### `gbg_colors(color = NULL)`
-Hämta specifik färg eller alla färger.
-
-```r
-gbg_colors("blue")           # Enskild färg
-gbg_colors()                 # Alla färger
-```
-
-#### `gbg_palette(type, palette = NULL, n = NULL, direction = 1)`
-Hämta färgpalett.
-
-**Parametrar:**
-- `type`: "sequential", "diverging", "categorical"
-- `palette`: Specifik palett (NULL = första)
-- `n`: Antal färger att interpolera till
-- `direction`: 1 = normal, -1 = omvänd
-
-```r
-gbg_palette("sequential", "blue")
-gbg_palette("sequential", "blue", n = 7)
-gbg_palette("sequential", "blue", n = 7, direction = -1)
-```
-
-#### `choose_text_color(background_color)`
-Välj svart eller vit text för optimal kontrast (WCAG AA).
-
-```r
-choose_text_color("#0076bc")    # → "#ffffff" (vit)
-choose_text_color("#fff2b0")    # → "#000000" (svart)
-```
-
-#### `show_palette(colors, labels = NULL)`
-Visualisera färgpalett. Kräver ggplot2.
-
-```r
-show_palette(gbg_palette("sequential", "blue"))
-show_palette(gbg_palette("categorical", "palette_4"))
-```
-
-#### `gbg_palette_gradient(colors, n = 10)`
-Skapa gradient mellan färger.
-
-```r
-gbg_palette_gradient(c("#bfe4f2", "#0076bc"), n = 10)
-```
+| Funktion | Beskrivning |
+|:---------|:------------|
+| `gbg_colors()` | Hämta enskilda färger eller alla |
+| `gbg_palette()` | Hämta färgpalett (sequential/diverging/categorical) |
+| `choose_text_color()` | Välj svart eller vit text för optimal kontrast |
+| `check_color_contrast()` | ✨ **NY** Kontrollera WCAG-kontrast |
+| `normalize_for_map()` | ✨ **NY** Normalisera data för kartor |
+| `show_palette()` | Visualisera palett (kräver ggplot2) |
+| `gbg_palette_gradient()` | Skapa custom gradient |
 
 ### ggplot_scales_gothenburg.R (EXTENSION)
 
-Kräver både `colors_gothenburg.R` och `ggplot2`.
+| Funktion | Typ | Användning |
+|:---------|:----|:-----------|
+| `scale_fill_gbg_sequential()` | Sequential | Fyll-färger, ordnade värden |
+| `scale_color_gbg_sequential()` | Sequential | Linje/punkt-färger, ordnade värden |
+| `scale_fill_gbg_diverging()` | Diverging | Fyll-färger, avvikelser |
+| `scale_color_gbg_diverging()` | Diverging | Linje/punkt-färger, avvikelser |
+| `scale_fill_gbg_categorical()` | Categorical | Fyll-färger, kategorier |
+| `scale_color_gbg_categorical()` | Categorical | Linje/punkt-färger, kategorier |
 
-#### Sequential scales
-- `scale_fill_gbg_sequential(palette, n, direction, discrete, ...)`
-- `scale_color_gbg_sequential(palette, n, direction, discrete, ...)`
-
-#### Diverging scales
-- `scale_fill_gbg_diverging(palette, n, direction, discrete, ...)`
-- `scale_color_gbg_diverging(palette, n, direction, discrete, ...)`
-
-#### Categorical scales
-- `scale_fill_gbg_categorical(palette, direction, ...)`
-- `scale_color_gbg_categorical(palette, direction, ...)`
-
-**Parametrar:**
-- `palette`: Namn på palett
-- `n`: Antal färger (NULL = automatisk)
-- `direction`: 1 = normal, -1 = omvänd
-- `discrete`: TRUE/FALSE/NULL (automatisk detektering)
-- `...`: Övriga argument till ggplot2 scales
+---
 
 ## 💡 Användningsområden
 
@@ -211,6 +205,8 @@ Kräver både `colors_gothenburg.R` och `ggplot2`.
 - ggplot2 kartor (geom_sf)
 - ggplot2 diagram (geom_bar, geom_line, etc)
 - Alla ggplot2 visualiseringar
+
+---
 
 ## 🎓 Best Practices
 
@@ -231,55 +227,151 @@ Kräver både `colors_gothenburg.R` och `ggplot2`.
 - Partier
 - Kategorier (max 7 rekommenderas)
 
-### Normalisering
+### Normalisering av kartdata
 
 ⚠️ **Viktigt:** Choropleth-kartor kräver ofta normaliserad data!
 
-```r
-# Normalisera till per capita
-data$per_capita <- (data$value / data$population) * 1000
+### Kontrollera tillgänglighet
 
-# Eller till procent
-data$procent <- (data$value / sum(data$value)) * 100
+```r
+# Kontrollera färgkontrast
+check_color_contrast(
+  bakgrundsfärg,
+  textfärg
+)
+
+# Välj automatiskt optimal textfärg
+text_color <- choose_text_color(bakgrundsfärg)
 ```
 
-### Tillgänglighet
+---
 
-- Alla paletter är färgblindanpassade
-- Använd `choose_text_color()` för optimal kontrast
-- Max 7 kategorier för categorical paletter
+## ♿ Tillgänglighet
 
-## 🔄 Versionshistorik
+- ✅ Alla paletter är färgblindanpassade
+- ✅ WCAG AA-standard för kontrast
+- ✅ Max 7 kategorier för categorical
+- ✅ Ljushet-gradient i sequential paletter
 
-### Version 1.0 (2025-10-31)
-- Första versionen
-- Två modulära skript: CORE + EXTENSION
-- 11 sequential, 3 diverging, 7 categorical paletter
-- 6 ggplot2 scale-funktioner
-- Komplett dokumentation
+**Läs mer:** [docs/fargblindanpassning.md](docs/fargblindanpassning.md)
+
+---
+
+## 🧪 Testning
+
+Projektet har 80+ automatiserade tester:
+
+```r
+# Kör alla tester
+source("tests/testthat.R")
+
+# Eller specifika tester
+testthat::test_file("tests/testthat/test-colors.R")
+testthat::test_file("tests/testthat/test-scales.R")
+```
+
+---
 
 ## 📚 Dokumentation
 
 - [Funktionskatalog: colors_gothenburg.R](docs/funktioner_katalog_colors.md)
 - [Funktionskatalog: ggplot_scales_gothenburg.R](docs/funktioner_katalog_ggplot.md)
-- [Snabbguide](docs/snabbguide.md)
+- [Färgblindanpassning](docs/fargblindanpassning.md)
+- [Snabbguide](docs/SNABBGUIDE.md)
+- [Ändringslogg](CHANGELOG.md)
+
+---
+
+## 🔄 Versionshistorik
+
+### Version 1.1 (2025-11-23)
+
+**Nya funktioner:**
+- `check_color_contrast()` - WCAG-kontroll
+- Automatiserade tester (testthat)
+
+**Förbättringar:**
+- Starkare input-validering
+- Bättre felmeddelanden
+- Färgblindanpassning dokumenterad
+
+### Version 1.0 (2025-10-31)
+
+- Initial release
+- Komplett färgsystem enligt Göteborgs Stads profil
+- ggplot2-integration
+
+**Se:** [CHANGELOG.md](CHANGELOG.md) för komplett historik
+
+---
 
 ## 🤝 Bidra
 
 Detta är ett öppen källkod-projekt. Bidrag välkomnas!
 
-## 📄 Licens
+### Rapportera problem
 
-MIT License
+Använd GitHub Issues för att rapportera buggar eller föreslå förbättringar.
 
-## 🔗 Relaterade resurser
+### Kodstandard
 
-- [Göteborgs Stads grafiska profil](https://goteborg.se/grafiskprofil)
-- [ColorBrewer](https://colorbrewer2.org/)
+Projektet följer:
+- Tidyverse style guide
+- Roxygen2 för dokumentation
+- testthat för tester
+- Conventional commits
 
 ---
 
-**Skapad:** 2025-10-31  
-**Version:** 1.0  
-**Kontakt:** Henrik Söderholm
-# Gothenburg Colors
+## 📄 Licens
+
+MIT License - Se [LICENSE](LICENSE) för detaljer.
+
+---
+
+## 🔗 Relaterade resurser
+
+**Göteborgs Stad:**
+- [Grafisk profil](https://goteborg.se/grafiskprofil)
+- [Designsystem fördatavisualisering](designprinciper_visualisering_Göteborg.md)
+
+**R-resurser:**
+- [ColorBrewer](https://colorbrewer2.org/)
+- [WCAG Färgkontrast](https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html)
+
+---
+
+## 📧 Kontakt
+
+**Utvecklare:** Henrik Söderholm  
+**Organisation:** Stadsledningskontoret, Göteborgs Stad  
+**GitHub:** [globalfunlearning/gothenburg_colors](https://github.com/globalfunlearning/gothenburg_colors)
+
+---
+
+## ⭐ Exempel
+
+### Kontrastkontroll för text
+
+```r
+# Bakgrundsfärg
+bg <- gbg_colors("dark_yellow")
+
+# Kontrollera kontrast
+contrast <- check_color_contrast(bg, "#ffffff")
+print(contrast)
+
+# Välj automatiskt bästa textfärg
+text <- choose_text_color(bg)
+
+# Använd i plot
+ggplot(data, aes(x = category, y = value)) +
+  geom_col(fill = bg) +
+  geom_text(aes(label = value), color = text, vjust = -0.5)
+```
+
+---
+
+*Skapad: 2025-10-31*  
+*Uppdaterad: 2025-11-23*  
+*Version: 1.1*

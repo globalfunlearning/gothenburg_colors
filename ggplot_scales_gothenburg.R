@@ -1,6 +1,7 @@
 # Göteborgs Stads Färgsystem - ggplot2 Integration
-# Version: 1.0
+# Version: 1.1
 # Skapad: 2025-10-31
+# Uppdaterad: 2025-11-23
 #
 # Detta skript innehåller ggplot2 scale-funktioner för Göteborgs Stads
 # grafiska profil.
@@ -12,6 +13,11 @@
 # ANVÄNDNING:
 # source("colors_gothenburg.R")
 # source("ggplot_scales_gothenburg.R")
+#
+# ÄNDRINGSLOGG v1.1:
+# - Förbättrad input-validering i alla scale-funktioner
+# - Bättre felmeddelanden
+# - Konsekventa parameterkontroller
 
 
 # KONTROLLERA BEROENDEN =================================================
@@ -57,6 +63,35 @@ scale_fill_gbg_sequential <- function(palette = "blue",
                                       direction = 1,
                                       discrete = NULL,
                                       ...) {
+  
+  # Validera palette
+  valid_palettes <- names(SEQUENTIAL_PALETTES)
+  if (!is.character(palette) || length(palette) != 1) {
+    stop("'palette' måste vara en character string")
+  }
+  if (!palette %in% valid_palettes) {
+    stop(
+      "Ogiltig sequential palett: '", palette, "'\n",
+      "Giltiga paletter: ", paste(valid_palettes, collapse = ", ")
+    )
+  }
+  
+  # Validera direction
+  if (!is.numeric(direction) || length(direction) != 1 || !direction %in% c(-1, 1)) {
+    stop("'direction' måste vara 1 (normal) eller -1 (omvänd)")
+  }
+  
+  # Validera n om angivet
+  if (!is.null(n)) {
+    if (!is.numeric(n) || length(n) != 1 || n < 2 || n != as.integer(n)) {
+      stop("'n' måste vara ett heltal >= 2")
+    }
+  }
+  
+  # Validera discrete om angivet
+  if (!is.null(discrete) && !is.logical(discrete)) {
+    stop("'discrete' måste vara TRUE, FALSE eller NULL")
+  }
   
   # Hämta baspaletten
   base_colors <- gbg_palette("sequential", palette, n = NULL, direction = direction)
@@ -110,6 +145,35 @@ scale_color_gbg_sequential <- function(palette = "blue",
                                        direction = 1,
                                        discrete = NULL,
                                        ...) {
+  
+  # Validera palette
+  valid_palettes <- names(SEQUENTIAL_PALETTES)
+  if (!is.character(palette) || length(palette) != 1) {
+    stop("'palette' måste vara en character string")
+  }
+  if (!palette %in% valid_palettes) {
+    stop(
+      "Ogiltig sequential palett: '", palette, "'\n",
+      "Giltiga paletter: ", paste(valid_palettes, collapse = ", ")
+    )
+  }
+  
+  # Validera direction
+  if (!is.numeric(direction) || length(direction) != 1 || !direction %in% c(-1, 1)) {
+    stop("'direction' måste vara 1 (normal) eller -1 (omvänd)")
+  }
+  
+  # Validera n om angivet
+  if (!is.null(n)) {
+    if (!is.numeric(n) || length(n) != 1 || n < 2 || n != as.integer(n)) {
+      stop("'n' måste vara ett heltal >= 2")
+    }
+  }
+  
+  # Validera discrete om angivet
+  if (!is.null(discrete) && !is.logical(discrete)) {
+    stop("'discrete' måste vara TRUE, FALSE eller NULL")
+  }
   
   # Hämta baspaletten
   base_colors <- gbg_palette("sequential", palette, n = NULL, direction = direction)
@@ -169,6 +233,35 @@ scale_fill_gbg_diverging <- function(palette = "red_green",
                                      discrete = NULL,
                                      ...) {
   
+  # Validera palette
+  valid_palettes <- names(DIVERGING_PALETTES)
+  if (!is.character(palette) || length(palette) != 1) {
+    stop("'palette' måste vara en character string")
+  }
+  if (!palette %in% valid_palettes) {
+    stop(
+      "Ogiltig diverging palett: '", palette, "'\n",
+      "Giltiga paletter: ", paste(valid_palettes, collapse = ", ")
+    )
+  }
+  
+  # Validera direction
+  if (!is.numeric(direction) || length(direction) != 1 || !direction %in% c(-1, 1)) {
+    stop("'direction' måste vara 1 (normal) eller -1 (omvänd)")
+  }
+  
+  # Validera n om angivet
+  if (!is.null(n)) {
+    if (!is.numeric(n) || length(n) != 1 || n < 2 || n != as.integer(n)) {
+      stop("'n' måste vara ett heltal >= 2")
+    }
+  }
+  
+  # Validera discrete om angivet
+  if (!is.null(discrete) && !is.logical(discrete)) {
+    stop("'discrete' måste vara TRUE, FALSE eller NULL")
+  }
+  
   # Hämta baspaletten
   base_colors <- gbg_palette("diverging", palette, n = NULL, direction = direction)
   
@@ -219,6 +312,35 @@ scale_color_gbg_diverging <- function(palette = "red_green",
                                       direction = 1,
                                       discrete = NULL,
                                       ...) {
+  
+  # Validera palette
+  valid_palettes <- names(DIVERGING_PALETTES)
+  if (!is.character(palette) || length(palette) != 1) {
+    stop("'palette' måste vara en character string")
+  }
+  if (!palette %in% valid_palettes) {
+    stop(
+      "Ogiltig diverging palett: '", palette, "'\n",
+      "Giltiga paletter: ", paste(valid_palettes, collapse = ", ")
+    )
+  }
+  
+  # Validera direction
+  if (!is.numeric(direction) || length(direction) != 1 || !direction %in% c(-1, 1)) {
+    stop("'direction' måste vara 1 (normal) eller -1 (omvänd)")
+  }
+  
+  # Validera n om angivet
+  if (!is.null(n)) {
+    if (!is.numeric(n) || length(n) != 1 || n < 2 || n != as.integer(n)) {
+      stop("'n' måste vara ett heltal >= 2")
+    }
+  }
+  
+  # Validera discrete om angivet
+  if (!is.null(discrete) && !is.logical(discrete)) {
+    stop("'discrete' måste vara TRUE, FALSE eller NULL")
+  }
   
   # Hämta baspaletten
   base_colors <- gbg_palette("diverging", palette, n = NULL, direction = direction)
@@ -274,6 +396,23 @@ scale_fill_gbg_categorical <- function(palette = "palette_4",
                                        direction = 1,
                                        ...) {
   
+  # Validera palette
+  valid_palettes <- names(CATEGORICAL_PALETTES)
+  if (!is.character(palette) || length(palette) != 1) {
+    stop("'palette' måste vara en character string")
+  }
+  if (!palette %in% valid_palettes) {
+    stop(
+      "Ogiltig categorical palett: '", palette, "'\n",
+      "Giltiga paletter: ", paste(valid_palettes, collapse = ", ")
+    )
+  }
+  
+  # Validera direction
+  if (!is.numeric(direction) || length(direction) != 1 || !direction %in% c(-1, 1)) {
+    stop("'direction' måste vara 1 (normal) eller -1 (omvänd)")
+  }
+  
   colors <- gbg_palette("categorical", palette, direction = direction)
   
   ggplot2::scale_fill_manual(values = colors, ...)
@@ -296,6 +435,23 @@ scale_fill_gbg_categorical <- function(palette = "palette_4",
 scale_color_gbg_categorical <- function(palette = "palette_4", 
                                         direction = 1,
                                         ...) {
+  
+  # Validera palette
+  valid_palettes <- names(CATEGORICAL_PALETTES)
+  if (!is.character(palette) || length(palette) != 1) {
+    stop("'palette' måste vara en character string")
+  }
+  if (!palette %in% valid_palettes) {
+    stop(
+      "Ogiltig categorical palett: '", palette, "'\n",
+      "Giltiga paletter: ", paste(valid_palettes, collapse = ", ")
+    )
+  }
+  
+  # Validera direction
+  if (!is.numeric(direction) || length(direction) != 1 || !direction %in% c(-1, 1)) {
+    stop("'direction' måste vara 1 (normal) eller -1 (omvänd)")
+  }
   
   colors <- gbg_palette("categorical", palette, direction = direction)
   
