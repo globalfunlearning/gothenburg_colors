@@ -1,0 +1,6 @@
+
+source("colors_gothenburg.R")
+
+check_color_contrast(gbg_colors("dark_green"), gbg_colors("white"))
+
+# Returnerar kontrast-ratio och WCAG AA/AAA-status
