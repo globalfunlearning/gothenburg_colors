@@ -396,7 +396,6 @@ Alla visualiseringar från Göteborgs Stad ska uppfylla följande krav:
 - [gothenburg_colors på GitHub](https://github.com/globalfunlearning/gothenburg_colors)
 
 **Inspiration och fördjupning:**
-- [Urban Institute Data Visualization Style Guide](https://urbaninstitute.github.io/graphics-styleguide/)
 - [Datawrapper Academy](https://academy.datawrapper.de/)
 - [Do No Harm Guide: Centering Accessibility](https://www.urban.org/research/publication/do-no-harm-guide-centering-accessibility-data-visualization)
 
